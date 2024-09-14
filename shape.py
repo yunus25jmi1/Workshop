@@ -2,7 +2,6 @@
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
-from turtlesim.srv import Spawn
 from std_srvs.srv import Empty
 import time
 
@@ -33,7 +32,6 @@ class TurtleController(Node):
         self.get_logger().info("Rotating the turtle")
         speed = 50.0
         angular_speed = speed * 2 * PI / 360
-        print("angular_speed",angular_speed)
         relative_angle = angle_degrees * 2 * PI / 360
         self.vel_msg.angular.z = angular_speed
 
@@ -85,26 +83,13 @@ class TurtleController(Node):
         client.wait_for_service()
         client.call_async(Empty.Request())
 
-    def spawn_bot(self):
-        self.get_logger().info("Spawning a new turtle")
-        client = self.create_client(Spawn, '/spawn')
-        client.wait_for_service()
-        spawn_request = Spawn.Request()
-
-        spawn_request.x = float(input("Enter the x coordinate: "))
-        spawn_request.y = float(input("Enter the y coordinate: "))
-        spawn_request.theta = float(input("Enter the theta in radians: "))
-        spawn_request.name = "my_turtle"
-
-        client.call_async(spawn_request)
-
 
 def main():
     rclpy.init()
     turtle_controller = TurtleController()
 
     while rclpy.ok():
-        shape = input("Enter the shape (square/rectangle/star/spawn): ")
+        shape = input("Enter the shape (square/rectangle/star): ")
 
         if shape == "square":
             turtle_controller.make_square()
@@ -118,8 +103,6 @@ def main():
             turtle_controller.make_star()
             time.sleep(3)
             turtle_controller.reset_turtle()
-        elif shape == "spawn":
-            turtle_controller.spawn_bot()
         else:
             print("Invalid shape, please enter again.")
 
